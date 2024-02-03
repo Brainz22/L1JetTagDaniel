@@ -7,7 +7,7 @@ import tqdm
 
 #inFileName = "root://cmseos.fnal.gov///store/user/mequinna/file4russell_2.root"
 
-SIGNAL_PDG_ID = 1000006
+SIGNAL_PDG_ID = 25
 MAX_ETA = 2.3
 N_JET_MAX = 12
 N_FEAT = 14

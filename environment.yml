@@ -14,6 +14,7 @@ dependencies:
   - tensorflow-datasets==4.8.3
   - webcolors
   - widgetsnbextension==3.6.0
+  - root
   - pip==23.0.1
   - pip:
       #- hls4ml[profiling]==0.8.0

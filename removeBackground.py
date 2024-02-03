@@ -3,6 +3,10 @@ import argparse
 import numpy as np
 
 def main(args):
+    
+    """The order of arguments: training file, testing file, testing sample data, training sample data, 
+      and lastly, the tag.  """
+
     trainFileName = args.trainFileName
     testFileName = args.testFileName
     train_sampleData = args.train_sampleData
@@ -33,11 +37,11 @@ def main(args):
     newTrain_jetData = train_jetData[Dict["Signal in Training"]]
     newTest_jetData = test_jetData[Dict["Signal in Testing"]]
 
-    with h5py.File("newTestData" + "ST30" + ".h5", "w") as hf:
+    with h5py.File("newTestData" + str(args.tag) + ".h5", "w") as hf:
         hf.create_dataset("Testing Data", data=newTestData)
     with h5py.File("newTrainData" + str(args.tag) + ".h5", "w") as hf:
         hf.create_dataset("Training Data", data=newTrainData)
-    with h5py.File("newSampleData" + "ST30" + ".h5", "w") as hf:
+    with h5py.File("newSampleData" + str(args.tag) + ".h5", "w") as hf:
         hf.create_dataset("Sample Data", data=newTrain_jetData)
     with h5py.File("newJetData" + str(args.tag) + ".h5", "w") as hf:
         hf.create_dataset("Jet Data", data=newTest_jetData)

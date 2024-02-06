@@ -46,7 +46,7 @@ def main(args):
     with h5py.File("newJetData" + str(args.tag) + ".h5", "w") as hf:
         hf.create_dataset("Jet Data", data=newTest_jetData)
 
-
+    print("\n Final number of Number of Signal Jets: ", int(newTrainData.shape[0], "\n"))
 
 if __name__ == "__main__":
      parser = argparse.ArgumentParser(description="Process arguments")

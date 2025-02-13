@@ -8,6 +8,7 @@ import tqdm
 #inFileName = "root://cmseos.fnal.gov///store/user/mequinna/file4russell_2.root"
 
 SIGNAL_PDG_ID = 25
+DAUGHTER_PDG_ID = 5
 MAX_ETA = 2.3
 N_JET_MAX = 12
 N_FEAT = 14
@@ -18,10 +19,6 @@ r.gROOT.SetBatch(1)
 
 
 def main(args):
-    #tag = "QCD"
-    #ptCut = 200
-    #trainPercent = 50
-    #usePuppi = 0
 
     inFileName = args.inFileName
     print("Reading from " + inFileName)
@@ -196,10 +193,19 @@ def main(args):
                         and (e not in bannedSignalParts)
                         and abs(tree.gen[e][0].Eta()) < MAX_ETA
                     ):
-                        if tree.gen[e][0].DeltaR(tempTLV) <= DELTA_R_MATCH:
-                            jetPartList[-1] = 1
-                            signalPartCount += 1
-                            bannedSignalParts.append(e)
+                        if tree.gen[e][0].DeltaR(tempTLV) <= DELTA_R_MATCH: #Check that LLP is within jet (DeltaR)
+
+                            for q in range(len(tree.gen)): #loop through entire branch
+                                if (
+                                    abs(tree.gen[q][1]) == DAUGHTER_PDG_ID
+                                    and (q not in bannedSignalParts)
+                                    and (tree.gen[q][0].DeltaR(tempTLV) <= DELTA_R_MATCH) #Check that Daughter is within DeltaR
+                                ):
+                                    jetPartList[-1] = 1
+                                    signalPartCount += 1
+                                    bannedSignalParts.append(e)
+                                    bannedSignalParts.append(q)
+                                    break
                             break
                 # Store particle inputs and jet features in overall list
                 jetPartsArray.append(jetPartList)

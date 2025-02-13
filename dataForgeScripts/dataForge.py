@@ -195,8 +195,8 @@ def main(args):
                     ):
                         if tree.gen[e][0].DeltaR(tempTLV) <= DELTA_R_MATCH: #Check that LLP is within jet (DeltaR)
 
-                            for q in range(len(tree.gen)): #loop through entire branch
-                                pc = 0 # product count
+                            pc = 0 # product count
+                            for q in range(len(tree.gen)): #loop through entire branch                   
                                 if (
                                     abs(tree.gen[q][1]) == DAUGHTER_PDG_ID
                                     and (q not in bannedSignalParts)
@@ -205,7 +205,8 @@ def main(args):
                                     bannedSignalParts.append(e)
                                     bannedSignalParts.append(q)
                                     pc += 1 
-                                    if pc == 2: break # break loop to find products if 2 make it in the jet
+                                if pc == 2: break # break loop to find products if 2 make it in the jet
+                            
                             jetPartList[-1] = 1
                             signalPartCount += 1
                             break

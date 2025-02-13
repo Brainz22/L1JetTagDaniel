@@ -202,14 +202,16 @@ def main(args):
                                     and (q not in bannedSignalParts)
                                     and (tree.gen[q][0].DeltaR(tempTLV) <= DELTA_R_MATCH) #Check that Daughter is within DeltaR
                                 ):
-                                    bannedSignalParts.append(e)
                                     bannedSignalParts.append(q)
                                     pc += 1 
                                 if pc == 2: break # break loop to find products if 2 make it in the jet
                             
-                            jetPartList[-1] = 1
-                            signalPartCount += 1
-                            break
+                            if pc > 0: #Only add signal flag and ban LLP if a product is also inside jet
+                                bannedSignalParts.append(e)
+                                jetPartList[-1] = 1
+                                signalPartCount += 1
+                                break # Break top loop until an LLP and decay product(s) is inside jet 
+
                 # Store particle inputs and jet features in overall list
                 jetPartsArray.append(jetPartList)
                 jetDataArray.append((tempTLV.Pt(), tempTLV.Eta(), tempTLV.Phi(), tempTLV.M(), jetPartList[-1]))

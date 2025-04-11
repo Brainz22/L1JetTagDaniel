@@ -1,0 +1,1 @@
+python3 dataForge_wEdits4eff.py /home/users/russelld/L1JetTagDaniel/hls4mlModifications/10-08-23/02-02_datasets/4b/M_LLP_30_ctau_1/hadd_of_hadds.root pt20 20 60 0

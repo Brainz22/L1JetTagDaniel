@@ -74,7 +74,6 @@ def main(args):
     signalPartArray = []
     missedSignalPartArray = []
     partType = []
-    matchedLLP = [] #to save information on the matched LLP
         
 
     print("Beginning Jet Construction")
@@ -84,7 +83,7 @@ def main(args):
     missedSignalParts = 0
     signalParts = 0
     for entryNum in pbar:
-        if entryNum == 2: break
+        #if entryNum == 20: break
         pbar.set_description("Jets: " + str(len(jetPartsArray)) + "; Signal Jets: " + str(signalPartCount))
         tree.GetEntry(entryNum)
         ver = tree.vz
@@ -219,13 +218,11 @@ def main(args):
 
                             elif pc <= 0: LLPinfo.extend((0, 0, 0, 0))
                 jetPartList.append(entryNum) #Add event number information
-                # Store particle inputs and jet features in overall list
-                if len(LLPinfo) == 0: 
-                    LLPinfo.extend((0, 0, 0, 0))
-                matchedLLP.append(LLPinfo) #LLP information
-                jetPartList.extend(LLPinfo)
                 jetPartsArray.append(jetPartList)
                 jetDataArray.append((tempTLV.Pt(), tempTLV.Eta(), tempTLV.Phi(), tempTLV.M(), jetPartList[-1-1],  jetPartList[-1] ))
+                if len(LLPinfo) == 0: 
+                    LLPinfo.extend((0, 0, 0, 0))
+                jetPartList.extend(LLPinfo)
                 jetNum += 1
 
         
@@ -270,11 +267,6 @@ def main(args):
 
     # Save datasets as h5 files
 
-    #Saving LLP information
-    print("\n", matchedLLP) 
-    print("\n", len(jetPartsArray[0]), len(jetPartsArray[1]), len(jetPartsArray[2]) )
-    # with h5py.File("matchedLLPData" + str(args.tag) + ".h5", "w") as hf:
-    #     hf.create_dataset("LLP Data", data=matchedLLP)
     # Testing Data: Particle Inputs for each jet of Shape [...,141]
     with h5py.File("testingData" + str(args.tag) + ".h5", "w") as hf:
         hf.create_dataset("Testing Data", data=testArray)

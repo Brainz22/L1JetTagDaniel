@@ -1,0 +1,1 @@
+python3 removeBackground.py trainingDatapt20.h5 testingDatapt20.h5 jetDatapt20.h5 sampleDatapt20.h5 SignalOnly_PT20

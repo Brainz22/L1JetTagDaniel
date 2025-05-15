@@ -83,6 +83,7 @@ def main(args):
     missedSignalParts = 0
     signalParts = 0
     for entryNum in pbar:
+        #if entryNum == 20: break
         pbar.set_description("Jets: " + str(len(jetPartsArray)) + "; Signal Jets: " + str(signalPartCount))
         tree.GetEntry(entryNum)
         ver = tree.vz
@@ -106,6 +107,7 @@ def main(args):
             partType.append(obj[i][1]) #adding particle type
             jetPartList = []
             seedParticle = []
+            LLPinfo = [] #to add LLP info 
             if jetNum >= N_JET_MAX:  # Limited to 12 jets per event at maximum
                 jetNum = 0
                 break
@@ -208,13 +210,19 @@ def main(args):
                             
                             if pc > 0: #Only add signal flag and ban LLP if a product is also inside jet
                                 bannedSignalParts.append(e)
+                                llpTLV = tree.gen[e][0]
+                                LLPinfo.extend((llpTLV.Pt(), llpTLV.Eta(), llpTLV.Phi(), llpTLV.M()))
                                 jetPartList[-1] = 1
                                 signalPartCount += 1
-                                break # Break top loop until an LLP and decay product(s) is inside jet 
+                                break # Break top loop until an LLP and decay product(s) is inside jet
 
-                # Store particle inputs and jet features in overall list
+                            elif pc <= 0: LLPinfo.extend((0, 0, 0, 0))
+                jetPartList.append(entryNum) #Add event number information
                 jetPartsArray.append(jetPartList)
-                jetDataArray.append((tempTLV.Pt(), tempTLV.Eta(), tempTLV.Phi(), tempTLV.M(), jetPartList[-1]))
+                jetDataArray.append((tempTLV.Pt(), tempTLV.Eta(), tempTLV.Phi(), tempTLV.M(), jetPartList[-1-1],  jetPartList[-1] ))
+                if len(LLPinfo) == 0: 
+                    LLPinfo.extend((0, 0, 0, 0))
+                jetPartList.extend(LLPinfo)
                 jetNum += 1
 
         
@@ -258,7 +266,7 @@ def main(args):
     assert len(testArray) == len(jetFullData) and len(trainArray) == len(trainingFullData)
 
     # Save datasets as h5 files
-    
+
     # Testing Data: Particle Inputs for each jet of Shape [...,141]
     with h5py.File("testingData" + str(args.tag) + ".h5", "w") as hf:
         hf.create_dataset("Testing Data", data=testArray)

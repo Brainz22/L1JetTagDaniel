@@ -23,6 +23,10 @@ conda activate L1JetTag
 
 Note inside the .yml file that the environment name will be L1JetTag.
 
+# `hadd` Root Files
+
+As an example, root files are named `<file_name>.root` and contain particle data resulting from proton-proton collision events inside the CMS detector at the LHC. Each of those files contain some amount of data and can combine them to form one file by `hadd`ing them. 
+
 # Reconstructing Jets:
 The Ntuples containing particle data, i.e. events with particles, can be accessed using the grid through LXPLUS or LPC for instance. Once we can access the Ntuples, we need to extract the particle information and cluster them into jets with the `dataForgeScripts/dataForge.py` script. Such a file can be run using the following command with the corresponding arguments: 
 

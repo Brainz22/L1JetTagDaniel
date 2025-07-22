@@ -76,7 +76,11 @@ The `"<JetData_TrainFile.h5>"` will look something like `"sampleData...h5"` resu
 Inside `ROC.py`, add paths of the testing data resulting from the DataForge.py and/or `removeBackground.py`.
 
 # Training QKeras Model:
-Inside of `qkerasModel.py`, add paths to the training files resulting from DataForge.py and/or `removeBackground.py`.
+
+We can run can run this by passing three arguments the following way:
+`python3 qkerasModel.py "<SignalTrainFile.h5>" "<BackgroundTrainFile.h5>" "<JetData_TrainFile.h5>"`. These files should have resulted from the DataForge.py and/or `removeBackground.py`.
+The `"<JetData_TrainFile.h5>"` will look something like `"sampleData...h5"` resulting from `DataForge.py'.
+
 
 # ROC Curve from QKeras Model:
 Inside `qkROC.py`, add paths of the testing data resulting from the DataForge.py and/or `removeBackground.py`.

@@ -23,14 +23,35 @@ conda activate L1JetTag
 
 Note inside the .yml file that the environment name will be L1JetTag.
 
-# Reconstructing Jets:
-The Ntuples containing particle data, i.e. events with particles, can be accessed using the grid through LXPLUS or LPC for instance. Once we can access the Ntuples, we need to extract the particle information and cluster them into jets with the `dataForgeScripts/dataForge.py` script. Such a file can be run using the following command with the corresponding arguments: 
+# `hadd` Root Files
 
-`$ Python3 DataF.py </path/to/file> (using xrootd or another access mode) QCDpt30 30 50 0`
+As an example, root files are named `<file_name>.root` and contain particle data resulting from proton-proton collision events inside the CMS detector at the LHC. Each of those files contain some amount of data and can combine them to form one file by `hadd`ing them. A quick way to hadd them is to install a version of the CMS software with the following commands:
+
+```
+    source /cvmfs/cms.cern.ch/cmsset_default.sh
+    export SCRAM_ARCH=slc7_amd64_gcc10
+    cmsrel CMSSW_12_4_1
+    cd CMSSW_12_4_1/src
+    cmsenv
+```
+The `cmsenv` allows you to use the `hadd command`. Next step is to add all of the file paths in a `.sh` to be executed. Steps are outlined below:
+* Use the jupyter notebook named `Fix_paths.ipynb`. Note that the file paths you will be using are different. You can just remove the `cPMinBias` in the file names.
+* Once you have run through the notebook, execute the resulting `.sh` file via `bash <file>.sh`.
+* If several `hadd.root` files result, just make another `.sh` file, following the same format that resulted from the previous step. You don't need to use the notebook I mentioned since there are only a few files for which you can manually add the paths. Then, hadd them again in a similar manner until you only have one hadd file.
+
+Once you have the one hadd file, move onto the next section.
+
+# Reconstructing Jets:
+The Ntuples (root files) containing particle data, i.e. events with particles, can be accessed using the grid through LXPLUS or LPC, for instance. You don't need the grid if you are working on UAF or Mulder. Once we can access the Ntuples, we need to extract the particle information and cluster them into jets with the `dataForgeScripts/dataForge.py` script. Such a file can be run using the following command in the terminal with the corresponding arguments: 
+
+```
+cd dataForgeScripts/dataForge.py
+Python3 DataForge.py </path/to/file> (using xrootd or another access mode) QCDpt30 30 50 0
+```
 
 Order of the arguments is as follows:
 
-path to file (using xrootd: `root://cmsxrootd.fnal.gov///store/...`)
+path to file (using xrootd: `root://cmsxrootd.fnal.gov///store/...` if applicable)
 
 tag = "QCDpt30" or "Stpt30" in this case. This is just a tag to be added to the name of the file.
 
@@ -55,7 +76,11 @@ The `"<JetData_TrainFile.h5>"` will look something like `"sampleData...h5"` resu
 Inside `ROC.py`, add paths of the testing data resulting from the DataForge.py and/or `removeBackground.py`.
 
 # Training QKeras Model:
-Inside of `qkerasModel.py`, add paths to the training files resulting from DataForge.py and/or `removeBackground.py`.
+
+We can run can run this by passing three arguments the following way:
+`python3 qkerasModel.py "<SignalTrainFile.h5>" "<BackgroundTrainFile.h5>" "<JetData_TrainFile.h5>"`. These files should have resulted from the DataForge.py and/or `removeBackground.py`.
+The `"<JetData_TrainFile.h5>"` will look something like `"sampleData...h5"` resulting from `DataForge.py'.
+
 
 # ROC Curve from QKeras Model:
 Inside `qkROC.py`, add paths of the testing data resulting from the DataForge.py and/or `removeBackground.py`.

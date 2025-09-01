@@ -8,6 +8,7 @@ import tqdm
 #inFileName = "root://cmseos.fnal.gov///store/user/mequinna/file4russell_2.root"
 
 SIGNAL_PDG_ID = 25
+DAUGHTER_PDG_ID = 5
 MAX_ETA = 2.3
 N_JET_MAX = 12
 N_FEAT = 14
@@ -18,10 +19,6 @@ r.gROOT.SetBatch(1)
 
 
 def main(args):
-    #tag = "QCD"
-    #ptCut = 200
-    #trainPercent = 50
-    #usePuppi = 0
 
     inFileName = args.inFileName
     print("Reading from " + inFileName)
@@ -196,11 +193,25 @@ def main(args):
                         and (e not in bannedSignalParts)
                         and abs(tree.gen[e][0].Eta()) < MAX_ETA
                     ):
-                        if tree.gen[e][0].DeltaR(tempTLV) <= DELTA_R_MATCH:
-                            jetPartList[-1] = 1
-                            signalPartCount += 1
-                            bannedSignalParts.append(e)
-                            break
+                        if tree.gen[e][0].DeltaR(tempTLV) <= DELTA_R_MATCH: #Check that LLP is within jet (DeltaR)
+
+                            pc = 0 # product count
+                            for q in range(len(tree.gen)): #loop through entire branch                   
+                                if (
+                                    abs(tree.gen[q][1]) == DAUGHTER_PDG_ID
+                                    and (q not in bannedSignalParts)
+                                    and (tree.gen[q][0].DeltaR(tempTLV) <= DELTA_R_MATCH) #Check that Daughter is within DeltaR
+                                ):
+                                    bannedSignalParts.append(q)
+                                    pc += 1 
+                                if pc == 2: break # break loop to find products if 2 make it in the jet
+                            
+                            if pc > 0: #Only add signal flag and ban LLP if a product is also inside jet
+                                bannedSignalParts.append(e)
+                                jetPartList[-1] = 1
+                                signalPartCount += 1
+                                break # Break top loop until an LLP and decay product(s) is inside jet 
+
                 # Store particle inputs and jet features in overall list
                 jetPartsArray.append(jetPartList)
                 jetDataArray.append((tempTLV.Pt(), tempTLV.Eta(), tempTLV.Phi(), tempTLV.M(), jetPartList[-1]))

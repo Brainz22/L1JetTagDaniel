@@ -1,3 +1,4 @@
+import numpy as np
 from numpy import loadtxt
 from tensorflow.keras.models import load_model
 from sklearn.model_selection import train_test_split
@@ -14,10 +15,10 @@ from qkeras.utils import load_qmodel
 # First Dataset
 #with h5py.File("/data/t3home000/aidandc/testingDataver3HH.h5", "r") as hf:
  #   dataset = hf["Testing Data"][:]
-
-with h5py.File("dataForgeScripts/newTestDataST30.h5", "r") as hf:
+    
+with h5py.File("data/testingDataSig.h5", "r") as hf:
     dataset = hf["Testing Data"][:]
-with h5py.File("dataForgeScripts/testingDataQCD30.h5", "r") as hf:
+with h5py.File("data/testingDataQCD.h5", "r") as hf:
     datasetQCD = hf["Testing Data"][:]
     
 dataset = np.concatenate((dataset,datasetQCD)) #Stacking datasets on top of another

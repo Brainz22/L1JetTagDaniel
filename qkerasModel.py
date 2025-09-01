@@ -5,7 +5,7 @@ import tensorflow
 import matplotlib.pyplot as plt
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Conv1D, Dense, Flatten, Input, GlobalAveragePooling1D
-from dataForgeScripts.dataForge import N_FEAT, N_PART_PER_JET
+#from dataForgeScripts.dataForge import N_FEAT, N_PART_PER_JET
 from qkeras import *
 from tensorflow.keras.regularizers import l1
 
@@ -15,8 +15,10 @@ from tensorflow_model_optimization.python.core.sparsity.keras import pruning_sch
 
 import tensorflow_model_optimization as tfmot
 
-def main(args):
+N_FEAT = 14
+N_PART_PER_JET = 10
 
+def main(args):
 
     signalTrainFile = args.SignalTrainFile
     bkgTrainFile = args.BkgTrainFile
@@ -57,52 +59,65 @@ def main(args):
     X = X.reshape((X.shape[0], N_PART_PER_JET, N_FEAT))
 
     # Establish the sample weights
-    thebins = np.linspace(0, 200, 100)
-    bkgPts = []
-    sigPts = []
-    for i in range(len(sampleData)):
-        if y[i] == 1:
-            sigPts.append(sampleData[i][0])
-        if y[i] == 0:
-            bkgPts.append(sampleData[i][0])
-    bkg_counts, binsbkg = np.histogram(bkgPts, bins=thebins)
-    sig_counts, binssig = np.histogram(sigPts, bins=thebins)
-    a = []
-    for i in range(len(bkg_counts)):
-        tempSig = float(sig_counts[i])
-        tempBkg = float(bkg_counts[i])
-        if tempBkg != 0:
-            a.append(tempSig / tempBkg)
-        if tempBkg == 0:
-            a.append(0)
-    # Normalize the sample weights above a certain pT
-    for i in range(42, len(a)):
-        a[i] = 0.7
+    thebins = np.linspace(0, 500, 20) # check for right range
+    bkgPts = sampleData[y==0][:,0]
+    sigPts = sampleData[y==1][:,0]
+    bkg_counts, _ = np.histogram(bkgPts, bins=thebins)
+    sig_counts, _ = np.histogram(sigPts, bins=thebins)
+    total_bkg = len(bkgPts)
+    total_sig  = len(sigPts)
+    
+    weights_pt = np.nan_to_num(sig_counts / bkg_counts, nan=total_sig / total_bkg)
 
     # Compile the network
-    x = inputs = Input(shape=(N_PART_PER_JET, N_FEAT))
+
+    x = inputs = Input(shape=(10, 14), name="input_1")
     x = QConv1D(
-        filters=50,
-        kernel_size=4,
-        strides=2, kernel_quantizer=quantized_bits(8,0,alpha=1)
+        filters=10,
+        kernel_size=1,
+        strides=1,
+        kernel_quantizer=quantized_bits(8, 3, alpha=1),
+        bias_quantizer=quantized_bits(8, 3, alpha=1),
+        kernel_initializer="lecun_uniform",
+        kernel_regularizer=l1(0.0001),
+        bias_regularizer=l1(0.0001),
+        name="q_conv1d",
     )(x)
-    x = QActivation(activation=quantized_relu(8))(x)
-    x = QConv1D(filters=50, kernel_size=4, strides=1,kernel_quantizer=quantized_bits(8,0,alpha=1))(x)
-    x = QActivation(activation=quantized_relu(8))(x)
-    #x = QGlobalAveragePooling2D()(x)
-    x = Flatten()(x)
-    x = QDense(50, kernel_quantizer=quantized_bits(8,0,alpha=1), bias_quantizer=quantized_bits(8,0,alpha=1),
-                    kernel_initializer='lecun_uniform', kernel_regularizer=l1(0.0001))(x)
-    x = QActivation(activation=quantized_relu(8))(x)
-    x = QDense(10, kernel_quantizer=quantized_bits(8,0,alpha=1), bias_quantizer=quantized_bits(8,0,alpha=1),
-                    kernel_initiaslizer='lecun_uniform', kernel_regularizer=l1(0.0001))(x)
-    x = QActivation(activation=quantized_relu(8))(x)
-    x = QDense(1,  kernel_quantizer=quantized_bits(8,0,alpha=1), bias_quantizer=quantized_bits(8,0,alpha=1),
-                    kernel_initializer='lecun_uniform', kernel_regularizer=l1(0.0001))(x)
-
-    outputs = Dense(1, activation="sigmoid")(x)
-
-    model = Model(inputs=inputs, outputs=outputs)
+    x = QActivation(activation=quantized_relu(8), name="q_activation")(x)
+    x = QConv1D(
+        filters=10,
+        kernel_size=1,
+        strides=1,
+        kernel_quantizer=quantized_bits(8, 3, alpha=1),
+        bias_quantizer=quantized_bits(8, 3, alpha=1),
+        kernel_initializer="lecun_uniform",
+        kernel_regularizer=l1(0.0001),
+        bias_regularizer=l1(0.0001),
+        name="q_conv1d_1",
+    )(x)
+    x = QActivation(activation=quantized_relu(8), name="q_activation_1")(x)
+    x = GlobalAveragePooling1D(name="global_average_pooling1d")(x)
+    x = QDense(
+        10,
+        kernel_quantizer=quantized_bits(8, 3, alpha=1),
+        bias_quantizer=quantized_bits(8, 3, alpha=1),
+        kernel_initializer="lecun_uniform",
+        kernel_regularizer=l1(0.0001),
+        bias_regularizer=l1(0.0001),
+        name="q_dense",
+    )(x)
+    x = QActivation(activation=quantized_relu(8), name="q_activation_2")(x)
+    x = QDense(
+        1,
+        kernel_quantizer=quantized_bits(8, 3, alpha=1),
+        bias_quantizer=quantized_bits(8, 3, alpha=1),
+        kernel_initializer="lecun_uniform",
+        kernel_regularizer=l1(0.0001),
+        bias_regularizer=l1(0.0001),
+        name="q_dense_1",
+    )(x)
+    outputs = Activation(activation="sigmoid", name="sigmoid")(x)
+    model = Model(inputs=inputs, outputs=outputs, name="model")
 
 
     #Pruning Step
@@ -133,26 +148,19 @@ def main(args):
     # Add in the sample weights, 1-to-1 correspondence with training data
     # Sample weight of all signal events being equal to 1
     # Sample weight of all background events being equal to the sig/bkg ratio at that jet's pT
-    weights = []
-    for i in range(len(sampleData)):
-        if y[i] == 1:
-            weights.append(1)
-        if y[i] == 0:
-            jetPt = sampleData[i][0]
-            tempPt = int(jetPt / 2)
-            if tempPt > 98:
-                tempPt = 98
-            weights.append(a[tempPt])
+    weights = np.ones(len(y))
+    pt_indicies = np.clip(np.digitize(sampleData[:,0], bins=thebins) - 1, 0, len(weights_pt) - 1)
+    weights[y==0] = weights_pt[pt_indicies][y==0]
+
 
     # Train the network
     callbacks = [tensorflow.keras.callbacks.EarlyStopping(monitor="val_loss", verbose=1, patience=10),
     pruning_callbacks.UpdatePruningStep()]
-
     
     history=model.fit(
         X,
         y,
-        epochs=50,
+        epochs=200,
         batch_size=50,
         verbose=2,
         sample_weight=np.asarray(weights),
@@ -166,11 +174,11 @@ def main(args):
     plt.ylabel('loss')
     plt.xlabel('epoch')
     plt.legend(loc='best')
-    plt.savefig("qkModelLoss.png")
+    plt.savefig("qkModLoss.png")
 
-    #model = tfmot.sparsity.keras.strip_pruning(model)
+    model = tfmot.sparsity.keras.strip_pruning(model)
     # Save the network
-    #model.save("qkL1JetTagModel.h5")
+    model.save("qkL1JetTagModel.h5")
 
 
 

@@ -128,34 +128,11 @@ else:
     norm_b4 = False
 
 if norm_b4:
-    tag = "separateNorm/sepNorm_test"
-    kinematics(A, jetData, b, "1-1_stop_4b_4c", tag )
-elif normalizeIPs:
-    tag = "b4train_Norm/Norm_b4test"
-    kinematics(A, jetData, b, "1-1_stop_4b_4c", "b4train_Norm/unNorm_test" )
-
-# Actual normalization performed below:
-
-if norm_b4:
     print("\nImpact parameter was normalized beforehand.\n")
-elif normalizeIPs:
-    print("\nNormalizing Impact parameter done here.\n")
-
-    scaler = MinMaxScaler(feature_range=(-1, 1))
-
-    temp_dz = scaler.fit_transform([[dz] for dz in A[:, :, 8].ravel()])
-    A[:, :, 8] = temp_dz.reshape(A[:,: ,8].shape)
-    temp_dx = scaler.fit_transform([[dx] for dx in A[:, :, 9].ravel()])
-    A[:, :, 9] = temp_dx.reshape(A[:,: ,9].shape)
-    temp_dy = scaler.fit_transform([[dy] for dy in A[:, :, 10].ravel()])
-    A[:, :, 10] = temp_dy.reshape(A[:, : ,10].shape)
-
-    kinematics(A, jetData, b, "stop_4b_4c", tag)
 else:
     print("\nDecided not to normalize impact parameter. \n")
     tag = "noNorm/noNorm_test"
     kinematics(A, jetData, b, "stop_4b_4c", "noNorm/noNorm_test" )
-    #no plotting since tag with unNorm was plotted
 
 X_test = np.ascontiguousarray(A)
 

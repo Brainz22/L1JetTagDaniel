@@ -32,44 +32,41 @@ print(config)
 print("\n")
 print("---------------------------------")
 
+config['LayerName']['q_conv1d']['ReuseFactor'] = 2
+config['LayerName']['q_conv1d_1']['ReuseFactor'] = 2
+
+
+
 
 config["LayerName"]["input_1"]["Precision"] = "fixed<12,6,AP_TRN, AP_SAT>"
 
 config["LayerName"]["q_input"]["Precision"] = "fixed<12,8, AP_TRN, AP_SAT>"
 
-config['LayerName']['q_conv1d']['ReuseFactor'] = 2
+
 config['LayerName']['q_conv1d']["Precision"]["accum"] = "fixed<14,8, AP_TRN, AP_SAT>"
 config['LayerName']['q_conv1d']["Precision"]["result"] = "fixed<14,8, AP_TRN, AP_SAT>"
 
-#config["LayerName"]["q_activation"]["Precision"] = "auto"
+
 config["LayerName"]["q_activation"]["Precision"]["result"] = "ufixed<14,8, AP_TRN, AP_SAT>"
-#config["LayerName"]["activation"]["Precision"] = "fixed<16,10, RND_CONV>"
-#config["LayerName"]["activation"]["Precision"]["result"] = "ufixed<16,6>"
 
 
-config['LayerName']['q_conv1d_1']['ReuseFactor'] = 2
 config['LayerName']['q_conv1d_1']["Precision"]["accum"] = "fixed<16, 12, AP_TRN, AP_SAT>"
-config['LayerName']['q_conv1d_1']["Precision"]["result"] = "fixed<16, 12, AP_TRN, AP_SAT>"
+config['LayerName']['q_conv1d_1']["Precision"]["result"] = "fixed<14, 8, AP_TRN, AP_SAT>"
 
-#config["LayerName"]["q_activation_1"]["Precision"] = "auto"
 config["LayerName"]["q_activation_1"]["Precision"]["result"] = "ufixed<10,5, AP_TRN, AP_SAT>"
-#config["LayerName"]["activation_1"]["Precision"] = "fixed<16,10, RND_CONV>"
-#config["LayerName"]["activation_1"]["Precision"]["result"] = "ufixed<16,6>"
-#config["LayerName"]["q_tanh"]["Precision"]["output"] = "fixed<10,1, AP_RND, AP_WRAP>"
+
 
 config["LayerName"]["global_average_pooling1d"]["Precision"]["accum"] = "fixed<16,12, AP_TRN, AP_SAT>"
 config["LayerName"]["global_average_pooling1d"]["Precision"]["result"] = "fixed<14,8, AP_TRN, AP_SAT>"
 
 
-#config['LayerName']['q_dense']["Precision"] = "auto"
 config['LayerName']['q_dense']["Precision"]["accum"] = "fixed<14, 10, AP_TRN, AP_SAT>"
 config['LayerName']['q_dense']["Precision"]["result"] = "fixed<14, 8, AP_TRN, AP_SAT>"
 
 
-#config["LayerName"]["q_activation_2"]["Precision"] = "auto"
+
 config["LayerName"]["q_activation_2"]["Precision"]["result"] = "ufixed<14, 8, AP_TRN, AP_SAT>"
-#config["LayerName"]["activation_2"]["Precision"] = "auto"
-# config["LayerName"]["activation_2"]["Precision"]["result"] = "ufixed<16, 6>"
+
 
 config['LayerName']['q_dense_1']["Precision"]["accum"] = "fixed<14, 10, AP_TRN, AP_SAT>"
 config['LayerName']['q_dense_1']["Precision"]["result"] = "fixed<14, 8, AP_TRN, AP_SAT>"
@@ -83,7 +80,8 @@ for layer in config['LayerName'].keys():
 hls_model = hls4ml.converters.convert_from_keras_model(model,
                                                        hls_config=config,
                                                        output_dir='qkmodel/hls4ml_prj',
-                                                       part='xcvu13p-flga2577-2-e')
+                                                       part='xcvu13p-flga2577-2-e',)
+                                                       #bit_exact=True)
 
 hls4ml.utils.plot_model(hls_model, show_shapes=True, show_precision=True, to_file=os.getcwd() + "/LayerTraces/qkmodel.png")
 

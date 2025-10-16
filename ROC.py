@@ -1,15 +1,15 @@
 import numpy as np
 from numpy import loadtxt
-from keras.models import load_model
+from tensorflow.keras.models import load_model
 from sklearn.model_selection import train_test_split
 import matplotlib
 import h5py
 from numpy import expand_dims
-
+import numpy as np
 matplotlib.use("Agg")
 import sys, os, numpy
 import tensorflow
-
+from qkeras.utils import load_qmodel
 # Establish the input and output data for each dataset, expanding dimensions for compatability with Conv1D layer input
 
 # First Dataset
@@ -55,7 +55,7 @@ import matplotlib.pyplot as plt
 
 # Create plot for ROC
 plt.figure(1)
-plt.plot([0, 1], [0, 1], "k--")
+#plt.plot([0, 1], [0, 1], "k--")
 
 # Load in respective model for the datasets
 #model1 = load_model("modelOne.h5")
@@ -69,7 +69,6 @@ fpr_Ab, tpr_Ab, thresholds_Ab = roc_curve(b, Ab_pred_keras)
 auc_Ab = auc(fpr_Ab, tpr_Ab)
 plt.plot(fpr_Ab, tpr_Ab, label="Pf, AUC={:.3f}".format(auc_Ab))
 
-#Bc_pred_keras = model2.predict(A1).ravel()
 #fpr_Bc, tpr_Bc, thresholds_Bc = roc_curve(b1, Bc_pred_keras)
 #auc_Bc = auc(fpr_Bc, tpr_Bc)
 #plt.plot(fpr_Bc, tpr_Bc, label="dZ+dXY 3 Vertex (area={:.3f})".format(auc_Bc))
@@ -80,8 +79,13 @@ plt.plot(fpr_Ab, tpr_Ab, label="Pf, AUC={:.3f}".format(auc_Ab))
 #plt.plot(fpr_Cd, tpr_Cd, label="dZ+dXY 5 Vertex (area={:.3f})".format(auc_Cd))
 
 # Establish labels and save image
-plt.xlabel("False positive rate")
-plt.ylabel("True positive rate")
-plt.title("L1 LLP Tag Model ROC Curve", fontsize=16)
+plt.xlabel("Background Efficiency", fontsize=16)
+plt.ylabel("Signal Efficiency", fontsize=16)
+#plt.axvline(x=0.01, ymin=0, ymax=0.59, color="red")
+#plt.axhline(y=0.6, xmin=0, xmax=0.573, color="red")
+plt.title("L1 LLP Tag Model ROC Curve", fontsize=16, weight="bold")
 plt.legend(loc="best")
-plt.savefig("ROCCurves.png")
+plt.xscale("log")
+plt.grid(True)
+plt.savefig("ROCCurve.png")
+

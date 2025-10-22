@@ -32,44 +32,41 @@ print(config)
 print("\n")
 print("---------------------------------")
 
+config['LayerName']['q_conv1d']['ReuseFactor'] = 2
+config['LayerName']['q_conv1d_1']['ReuseFactor'] = 2
+
+
+
 
 config["LayerName"]["input_1"]["Precision"] = "fixed<12,6,AP_TRN, AP_SAT>"
 
 config["LayerName"]["q_input"]["Precision"] = "fixed<12,8, AP_TRN, AP_SAT>"
 
-config['LayerName']['q_conv1d']['ReuseFactor'] = 2
+
 config['LayerName']['q_conv1d']["Precision"]["accum"] = "fixed<14,8, AP_TRN, AP_SAT>"
 config['LayerName']['q_conv1d']["Precision"]["result"] = "fixed<14,8, AP_TRN, AP_SAT>"
 
-#config["LayerName"]["q_activation"]["Precision"] = "auto"
+
 config["LayerName"]["q_activation"]["Precision"]["result"] = "ufixed<14,8, AP_TRN, AP_SAT>"
-#config["LayerName"]["activation"]["Precision"] = "fixed<16,10, RND_CONV>"
-#config["LayerName"]["activation"]["Precision"]["result"] = "ufixed<16,6>"
 
 
-config['LayerName']['q_conv1d_1']['ReuseFactor'] = 2
 config['LayerName']['q_conv1d_1']["Precision"]["accum"] = "fixed<16, 12, AP_TRN, AP_SAT>"
-config['LayerName']['q_conv1d_1']["Precision"]["result"] = "fixed<16, 12, AP_TRN, AP_SAT>"
+config['LayerName']['q_conv1d_1']["Precision"]["result"] = "fixed<14, 8, AP_TRN, AP_SAT>"
 
-#config["LayerName"]["q_activation_1"]["Precision"] = "auto"
 config["LayerName"]["q_activation_1"]["Precision"]["result"] = "ufixed<10,5, AP_TRN, AP_SAT>"
-#config["LayerName"]["activation_1"]["Precision"] = "fixed<16,10, RND_CONV>"
-#config["LayerName"]["activation_1"]["Precision"]["result"] = "ufixed<16,6>"
-#config["LayerName"]["q_tanh"]["Precision"]["output"] = "fixed<10,1, AP_RND, AP_WRAP>"
+
 
 config["LayerName"]["global_average_pooling1d"]["Precision"]["accum"] = "fixed<16,12, AP_TRN, AP_SAT>"
 config["LayerName"]["global_average_pooling1d"]["Precision"]["result"] = "fixed<14,8, AP_TRN, AP_SAT>"
 
 
-#config['LayerName']['q_dense']["Precision"] = "auto"
 config['LayerName']['q_dense']["Precision"]["accum"] = "fixed<14, 10, AP_TRN, AP_SAT>"
 config['LayerName']['q_dense']["Precision"]["result"] = "fixed<14, 8, AP_TRN, AP_SAT>"
 
 
-#config["LayerName"]["q_activation_2"]["Precision"] = "auto"
+
 config["LayerName"]["q_activation_2"]["Precision"]["result"] = "ufixed<14, 8, AP_TRN, AP_SAT>"
-#config["LayerName"]["activation_2"]["Precision"] = "auto"
-# config["LayerName"]["activation_2"]["Precision"]["result"] = "ufixed<16, 6>"
+
 
 config['LayerName']['q_dense_1']["Precision"]["accum"] = "fixed<14, 10, AP_TRN, AP_SAT>"
 config['LayerName']['q_dense_1']["Precision"]["result"] = "fixed<14, 8, AP_TRN, AP_SAT>"
@@ -83,7 +80,8 @@ for layer in config['LayerName'].keys():
 hls_model = hls4ml.converters.convert_from_keras_model(model,
                                                        hls_config=config,
                                                        output_dir='qkmodel/hls4ml_prj',
-                                                       part='xcvu13p-flga2577-2-e')
+                                                       part='xcvu13p-flga2577-2-e',)
+                                                       #bit_exact=True)
 
 hls4ml.utils.plot_model(hls_model, show_shapes=True, show_precision=True, to_file=os.getcwd() + "/LayerTraces/qkmodel.png")
 
@@ -130,34 +128,11 @@ else:
     norm_b4 = False
 
 if norm_b4:
-    tag = "separateNorm/sepNorm_test"
-    kinematics(A, jetData, b, "1-1_stop_4b_4c", tag )
-elif normalizeIPs:
-    tag = "b4train_Norm/Norm_b4test"
-    kinematics(A, jetData, b, "1-1_stop_4b_4c", "b4train_Norm/unNorm_test" )
-
-# Actual normalization performed below:
-
-if norm_b4:
     print("\nImpact parameter was normalized beforehand.\n")
-elif normalizeIPs:
-    print("\nNormalizing Impact parameter done here.\n")
-
-    scaler = MinMaxScaler(feature_range=(-1, 1))
-
-    temp_dz = scaler.fit_transform([[dz] for dz in A[:, :, 8].ravel()])
-    A[:, :, 8] = temp_dz.reshape(A[:,: ,8].shape)
-    temp_dx = scaler.fit_transform([[dx] for dx in A[:, :, 9].ravel()])
-    A[:, :, 9] = temp_dx.reshape(A[:,: ,9].shape)
-    temp_dy = scaler.fit_transform([[dy] for dy in A[:, :, 10].ravel()])
-    A[:, :, 10] = temp_dy.reshape(A[:, : ,10].shape)
-
-    kinematics(A, jetData, b, "stop_4b_4c", tag)
 else:
     print("\nDecided not to normalize impact parameter. \n")
     tag = "noNorm/noNorm_test"
     kinematics(A, jetData, b, "stop_4b_4c", "noNorm/noNorm_test" )
-    #no plotting since tag with unNorm was plotted
 
 X_test = np.ascontiguousarray(A)
 

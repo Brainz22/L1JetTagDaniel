@@ -1,0 +1,133 @@
+Backend: Vivado
+ClockPeriod: 5
+ClockUncertainty: 12.5%
+HLSConfig:
+  LayerName:
+    global_average_pooling1d:
+      Precision:
+        accum: fixed<16,12, AP_TRN, AP_SAT>
+        result: fixed<14,8, AP_TRN, AP_SAT>
+      ReuseFactor: 1
+      Trace: false
+    input_1:
+      Precision: fixed<12,6,AP_TRN, AP_SAT>
+      Trace: false
+    q_activation:
+      Precision:
+        result: ufixed<14,8, AP_TRN, AP_SAT>
+        table: fixed<18,8,TRN,WRAP,0>
+      ReuseFactor: 1
+      TableSize: 1024
+      Trace: false
+    q_activation_1:
+      Precision:
+        result: ufixed<10,5, AP_TRN, AP_SAT>
+        table: fixed<18,8,TRN,WRAP,0>
+      ReuseFactor: 1
+      TableSize: 1024
+      Trace: false
+    q_activation_2:
+      Precision:
+        result: ufixed<14, 8, AP_TRN, AP_SAT>
+        table: fixed<18,8,TRN,WRAP,0>
+      ReuseFactor: 1
+      TableSize: 1024
+      Trace: false
+    q_conv1d:
+      ConvImplementation: LineBuffer
+      ParallelizationFactor: 1
+      Precision:
+        accum: fixed<14,8, AP_TRN, AP_SAT>
+        bias: fixed<10,5,TRN,WRAP,0>
+        result: fixed<14,8, AP_TRN, AP_SAT>
+        weight: fixed<10,5,TRN,WRAP,0>
+      ReuseFactor: 2
+      Trace: false
+    q_conv1d_1:
+      ConvImplementation: LineBuffer
+      ParallelizationFactor: 1
+      Precision:
+        accum: fixed<16, 12, AP_TRN, AP_SAT>
+        bias: fixed<10,5,TRN,WRAP,0>
+        result: fixed<16, 12, AP_TRN, AP_SAT>
+        weight: fixed<10,5,TRN,WRAP,0>
+      ReuseFactor: 2
+      Trace: false
+    q_conv1d_1_linear:
+      Precision:
+        result: auto
+        table: fixed<18,8,TRN,WRAP,0>
+      ReuseFactor: 1
+      TableSize: 1024
+      Trace: false
+    q_conv1d_linear:
+      Precision:
+        result: auto
+        table: fixed<18,8,TRN,WRAP,0>
+      ReuseFactor: 1
+      TableSize: 1024
+      Trace: false
+    q_dense:
+      Precision:
+        accum: fixed<14, 10, AP_TRN, AP_SAT>
+        bias: fixed<10,5,TRN,WRAP,0>
+        result: fixed<14, 8, AP_TRN, AP_SAT>
+        weight: fixed<10,5,TRN,WRAP,0>
+      ReuseFactor: 1
+      Trace: false
+    q_dense_1:
+      Precision:
+        accum: fixed<14, 10, AP_TRN, AP_SAT>
+        bias: fixed<10,5,TRN,WRAP,0>
+        result: fixed<14, 8, AP_TRN, AP_SAT>
+        weight: fixed<10,5,TRN,WRAP,0>
+      ReuseFactor: 1
+      Trace: false
+    q_dense_1_linear:
+      Precision:
+        result: auto
+        table: fixed<18,8,TRN,WRAP,0>
+      ReuseFactor: 1
+      TableSize: 1024
+      Trace: false
+    q_dense_linear:
+      Precision:
+        result: auto
+        table: fixed<18,8,TRN,WRAP,0>
+      ReuseFactor: 1
+      TableSize: 1024
+      Trace: false
+    q_input:
+      Precision: fixed<12,6, AP_TRN, AP_SAT>
+      ReuseFactor: 1
+      TableSize: 1024
+      Trace: false
+  Model:
+    BitExact: null
+    BramFactor: 1000000000
+    Precision:
+      default: fixed<14,8, AP_TRN, AP_SAT>
+    ReuseFactor: 1
+    Strategy: Latency
+    TraceOutput: false
+IOType: io_parallel
+InputData: null
+InputShapes:
+  input_1:
+  - 10
+  - 14
+KerasModel: !keras_model 'qkmodel/hls4ml_prj/keras_model.keras'
+OutputDir: qkmodel/hls4ml_prj
+OutputPredictions: null
+OutputShapes:
+  layer13_out:
+  - 1
+Part: xcvu13p-flga2577-2-e
+ProjectName: myproject
+Stamp: 299ea922
+Version: 1.0.0
+WriterConfig:
+  Namespace: hls4ml_model_emu_v3
+  TBOutputStream: both
+  WriteTar: false
+  WriteWeightsTxt: false

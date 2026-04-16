@@ -177,9 +177,11 @@ def main(args):
                 c = N_PART_PER_JET + 1
                 while c < len(jetPartList) - 2:
                     jetPartList[c] = jetPartList[c] / tempTLV.Pt()
-                    jetPartList[c + 1] = tempTLV.Eta() - jetPartList[c + 1]
+                    #jetPartList[c + 1] = tempTLV.Eta() - jetPartList[c + 1]
+                    jetPartList[c + 1] = jetPartList[c + 1] - tempTLV.Eta() 
                     tempPhi = jetPartList[c + 2]
-                    jetPartList[c + 2] = signedDeltaPhi(tempTLV.Phi(), tempPhi)
+                    #jetPartList[c + 2] = signedDeltaPhi(tempTLV.Phi(), tempPhi)
+                    jetPartList[c + 2] = signedDeltaPhi(tempPhi, tempTLV.Phi())
                     c += N_FEAT
                 # Ensure all inputs are same length
                 while len(jetPartList) < N_PART_PER_JET * N_FEAT:
